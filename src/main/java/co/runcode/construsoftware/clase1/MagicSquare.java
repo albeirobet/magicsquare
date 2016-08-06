@@ -130,7 +130,7 @@ public class MagicSquare extends JFrame {
 
 				System.out.println(" Este es el valor de M  " + m);
 				if (x1 == m && x2 == m && x3 == m && y1 == m && y2 == m && y3 == m && diag1 == m && diag2 == m) {
-					System.out.println(" Los datos digitados solucionan el Cuadro Mágico");
+					System.out.println(" Los datos digitados solucionan el Cuadro Mágico Don Pingo");
 					JOptionPane.showMessageDialog(null, "Los datos digitados solucionan el Cuadro Mágico");
 
 				} else {
