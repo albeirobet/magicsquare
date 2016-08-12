@@ -6,12 +6,17 @@
 	<version>1.0</version>
 
 	<dependencies>
+		<!-- https://mvnrepository.com/artifact/org.choco-solver/choco-solver <dependency> 
+			<groupId>org.choco-solver</groupId> <artifactId>choco-solver</artifactId> 
+			<version>3.3.3</version> </dependency> -->
+
 		<!-- https://mvnrepository.com/artifact/org.choco-solver/choco-solver -->
 		<dependency>
 			<groupId>org.choco-solver</groupId>
 			<artifactId>choco-solver</artifactId>
-			<version>3.3.3</version>
+			<version>3.3.3-j7</version>
 		</dependency>
+
 	</dependencies>
 
 </project>

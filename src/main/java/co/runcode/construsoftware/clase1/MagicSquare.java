@@ -4,17 +4,13 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.concurrent.SynchronousQueue;
-
-import javax.print.attribute.standard.JobKOctetsProcessed;
+import java.util.Arrays;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-
 import org.chocosolver.solver.Solver;
-import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.VariableFactory;
@@ -25,13 +21,24 @@ public class MagicSquare extends JFrame {
 	private JTextField n[];
 	private JButton test, solve;
 	private int m;
+	private int size;
+	private int sizeConvert;
 
 	public MagicSquare() {
+		System.out.println(" Inicializando el MagicSquare");
+		String sizeString;
+		sizeString = JOptionPane.showInputDialog("Digite numero de lados deseados para el Cuadro Màgico");
+		if(isInteger(sizeString)){
+		size = Integer.parseInt(sizeString);
+		sizeConvert = size * size;
 		setTitle("Magic Square");
 		setSize(400, 400);
 		launchWigets();
 		launchEvents();
 		setVisible(true);
+		}else{
+			JOptionPane.showMessageDialog(null, "Nùmero digitado es incorrecto!");
+		}
 
 	}
 
@@ -40,102 +47,114 @@ public class MagicSquare extends JFrame {
 	}
 
 	private void launchWigets() {
+
 		test = new JButton("Test");
 		solve = new JButton("Solve");
-		JPanel panel = new JPanel(new GridLayout(3, 3));
+		JPanel panel = new JPanel(new GridLayout(size, size));
 		add(test, BorderLayout.NORTH);
 		add(solve, BorderLayout.SOUTH);
 		add(panel, BorderLayout.CENTER);
-		n = new JTextField[9];
-		for (int i = 0; i < 9; i++) {
+		n = new JTextField[sizeConvert];
+		for (int i = 0; i < sizeConvert; i++) {
 			n[i] = new JTextField();
 			panel.add(n[i]);
 		}
 	}
 
 	private void launchEvents() {
-		m = (3 * (3 * 3 + 1)) / 2;
+		m = (size * (size * size + 1)) / 2;
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 
 		test.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
 
-				int x1 = 0;
-				int x2 = 0;
-				int x3 = 0;
-				int y1 = 0;
-				int y2 = 0;
-				int y3 = 0;
-				int diag1 = 0;
-				int diag2 = 0;
+				if (validateDataMatrix(n)) {
+					int matrizTest[][] = new int[size][size];
+					int checkFile = size;
+					int fila = 0;
+					int columna = 0;
+					int factorMulti = 1;
+					for (int i = 0; i < sizeConvert; i++) {
+						// System.out.print(" "+n[i].getText());
+						if (i < checkFile) {
+							System.out.print(" (" + fila + "," + columna + ") " + n[i].getText());
+							matrizTest[fila][columna] = Integer.parseInt(n[i].getText());
+							columna++;
+						} else {
+							factorMulti++;
+							System.out.print("\n  ");
+							fila++;
+							columna = 0;
+							System.out.print(" (" + fila + "," + columna + ") " + n[i].getText());
+							matrizTest[fila][columna] = Integer.parseInt(n[i].getText());
+							columna++;
+							checkFile = size * factorMulti;
+						}
+					}
+					System.out.print("\n\n  ");
+					for (int[] row : matrizTest)
+						System.out.println(Arrays.toString(row));
 
-				for (int i = 0; i < 9; i++) {
-					// System.out.println(" >> "+n[i].getText());
-					if (i < 3) {
-						x1 += Integer.parseInt(n[i].getText());
-					}
-					if (i > 2 && i < 6) {
-						// System.out.println(" Sumando y " + n[i].getText());
-						x2 += Integer.parseInt(n[i].getText());
-					}
-					if (i > 5 && i < 9) {
-						// System.out.println(" Sumando z " + n[i].getText());
-						x3 += Integer.parseInt(n[i].getText());
-					}
+					boolean checkResult = false;
 
-					if ((i % 2) == 0) {
-						// System.out.println(" Sumando Mod " + n[i].getText());
-					}
+					int sumaFilas = 0;
+					int sumaColumnas = 0;
 
-					if (i == 0 || i == 3 || i == 6) {
-						// System.out.println(" Sumando Ver 1 " +
-						// n[i].getText());
-						y1 += Integer.parseInt(n[i].getText());
-					}
-					if (i == 1 || i == 4 || i == 7) {
-						// System.out.println(" Sumando Ver 2 " +
-						// n[i].getText());
-						y2 += Integer.parseInt(n[i].getText());
-					}
+					for (int r = 0; r < size; r++) {
+						for (int c = 0; c < size; c++) {
+							sumaFilas += matrizTest[r][c];
+						}
+						if (sumaFilas == m) {
+							checkResult = true;
+						} else {
+							checkResult = false;
+						}
+						System.out.println(" Suma fil " + r + "  " + sumaFilas);
 
-					if (i == 2 || i == 5 || i == 8) {
-						// System.out.println(" Sumando Ver 3 " +
-						// n[i].getText());
-						y3 += Integer.parseInt(n[i].getText());
-					}
-
-					if (i == 0 || i == 4 || i == 8) {
-						// System.out.println(" Sumando Ver 3 " +
-						// n[i].getText());
-						diag1 += Integer.parseInt(n[i].getText());
+						sumaFilas = 0;
 					}
 
-					if (i == 2 || i == 4 || i == 6) {
-						// System.out.println(" Sumando Ver 3 " +
-						// n[i].getText());
-						diag2 += Integer.parseInt(n[i].getText());
+					for (int r = 0; r < size; r++) {
+						for (int c = 0; c < size; c++) {
+							sumaColumnas += matrizTest[c][r];
+						}
+						System.out.println(" Suma Col " + r + "  " + sumaColumnas);
+						if (sumaColumnas == m) {
+							checkResult = true;
+						} else {
+							checkResult = false;
+						}
+						sumaColumnas = 0;
 					}
 
-				}
-				//
-				System.out.println(" Suma x1  " + x1);
-				System.out.println(" Suma x2  " + x2);
-				System.out.println(" Suma x3  " + x3);
-				System.out.println(" Suma y1  " + y1);
-				System.out.println(" Suma y2  " + y2);
-				System.out.println(" Suma y3  " + y3);
-				System.out.println(" Suma diag1  " + diag1);
-				System.out.println(" Suma diag2  " + diag2);
+					int sumDiag1 = 0;
+					int sumDiag2 = 0;
 
-				System.out.println(" Este es el valor de M  " + m);
-				if (x1 == m && x2 == m && x3 == m && y1 == m && y2 == m && y3 == m && diag1 == m && diag2 == m) {
-					System.out.println(" Los datos digitados solucionan el Cuadro Mágico Don Pingo");
-					JOptionPane.showMessageDialog(null, "Los datos digitados solucionan el Cuadro Mágico");
+					for (int d = 0; d < size; d++) {
+						sumDiag1 += matrizTest[d][d];
+						sumDiag2 += matrizTest[d][(size - 1) - d];
+					}
 
+					if (sumDiag1 == m & sumDiag2 == m) {
+						checkResult = true;
+					} else {
+						checkResult = false;
+					}
+					System.out.println(" Diag1: " + sumDiag1 + "  Diag2: " + sumDiag2);
+
+					System.out.println(" Este es el valor de M  " + m);
+					if (checkResult) {
+						System.out.println(" Los datos digitados solucionan el Cuadro Mágico Don Pingo");
+						JOptionPane.showMessageDialog(null, "Los datos digitados solucionan el Cuadro Mágico");
+
+					} else {
+						System.out.println(" Los datos digitados son Incorrectos");
+						JOptionPane.showMessageDialog(null, "Los datos digitados son Incorrectos");
+					}
 				} else {
 					System.out.println(" Los datos digitados son Incorrectos");
-					JOptionPane.showMessageDialog(null, "Los datos digitados son Incorrectos");
+					JOptionPane.showMessageDialog(null, "Por favor diligencie todos los datos de manera correcta");
 				}
 
 			}
@@ -146,44 +165,69 @@ public class MagicSquare extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
 				Solver solver = new Solver();
-				IntVar v[] = VariableFactory.boundedArray("", 9, 1, m, solver);
+				IntVar v[] = VariableFactory.boundedArray("", sizeConvert, 1, m, solver);
 				solver.post(ICF.alldifferent(v));
 				IntVar M = VariableFactory.fixed(m, solver);
-				IntVar vm1[][] = new IntVar[3][3];
-				IntVar vm2[][] = new IntVar[3][3];
-				
-				
+				IntVar vm1[][] = new IntVar[size][size];
+				IntVar vm2[][] = new IntVar[size][size];
+
 				int x = 0;
-				for (int r = 0; r < 3; r++) {
-					for (int c = 0; c < 3; c++) {
+				for (int r = 0; r < size; r++) {
+					for (int c = 0; c < size; c++) {
 						vm1[r][c] = v[x];
 						vm2[c][r] = v[x];
 						x++;
 					}
 					solver.post(ICF.sum(vm1[r], M));
 				}
-				
-				
-				IntVar diag1[]= new IntVar[3];
-				IntVar diag2[]= new IntVar[3];
-				for(int d=0;d<3;d++){
-					diag1[d]= vm1[d][d];
-					diag2[d]= vm1[d][2-d];
-				}
-				
-				solver.post(ICF.sum(diag1, M));
-				solver.post(ICF.sum(diag2, M));
-				for (int c = 0; c < 3; c++) {
-					solver.post(ICF.sum(vm2[c], M));
+
+				IntVar diag1[] = new IntVar[size];
+				IntVar diag2[] = new IntVar[size];
+				for (int d = 0; d < size; d++) {
+					diag1[d] = vm1[d][d];
+					diag2[d] = vm1[d][(size - 1) - d];
 				}
 
+				solver.post(ICF.sum(diag1, M));
+				solver.post(ICF.sum(diag2, M));
+				for (int c = 0; c < size; c++) {
+					solver.post(ICF.sum(vm2[c], M));
+				}
+				System.out.println(" Entrando a obtener la soluciòn a Choko");
 				solver.findSolution();
-				for (int i = 0; i < 9; i++) {
+				System.out.println(" Saliendo de la soluciòn de Choko");
+				for (int i = 0; i < sizeConvert; i++) {
 					n[i].setText("" + v[i].getValue());
 				}
 			}
 		});
 
+	}
+
+	public boolean validateDataMatrix(JTextField n[]) {
+		boolean flag = false;
+		if (n.length == sizeConvert) {
+			for (int i = 0; i < n.length; i++) {
+				flag = isInteger(n[i].getText());
+				if (!flag) {
+					i = n.length;
+				}
+			}
+		}
+
+		return flag;
+	}
+
+	public static boolean isInteger(String s) {
+		try {
+			Integer.parseInt(s);
+		} catch (NumberFormatException e) {
+			return false;
+		} catch (NullPointerException e) {
+			return false;
+		}
+		// only got here if we didn't return false
+		return true;
 	}
 
 }
